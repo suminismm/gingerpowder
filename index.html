@@ -903,7 +903,8 @@ function extractImageCandidates(html) {
   const raw = findArticleBodyRaw(html);
   if (!raw) return [];
 
-  const DATA_KEYWORDS = /표|그래프|그래픽|인포그래픽|통계|현황|비교|추이|도표|지도|점유율|자료\s*[:=]|자료\s*제공|출처\s*[:=]/;
+  // 단독 "표"·"지도"·"비교"는 발표/대표/지도자/비교적처럼 일반 단어에 흔히 포함돼 오탐이 잦아 제외/보정
+  const DATA_KEYWORDS = /그래프|그래픽|인포그래픽|통계|현황|비교(?!적)|추이|도표|지도(?!자)|점유율|자료\s*[:=]|자료\s*제공|출처\s*[:=]/;
   const NUMERIC_PATTERN = /\d[\d,.]*\s*(억|조|만|천|%|원|달러|명|건)/;
   // 캡션에 등장하는 "○○○ 기자"는 그래픽·사진 모두에 공통된 바이라인이라 판단 근거로 쓰지 않음
   const EXCLUDE_CAPTION = /관련\s*기사|광고|배너|ⓒ|아이콘|로고|logo|banner/i;
@@ -915,7 +916,8 @@ function extractImageCandidates(html) {
   let m;
   while ((m = imgRe.exec(raw))) {
     const tag = m[0];
-    if (/display\s*:\s*none/i.test(tag)) continue; // 숨겨진 트래킹 픽셀 등
+    // 주의: 네이버 등 일부 매체는 실제 본문 이미지도 지연로딩 위해 처음엔 style="display:none"으로 숨겨두므로
+    // 숨김 여부만으로 트래킹 픽셀을 가려내지 않음 (대신 src 유무·크기·제외 도메인으로 판별)
 
     const srcVal = getAttrVal(tag, 'data-org-src') || getAttrVal(tag, 'data-src') ||
                    getAttrVal(tag, 'data-original') || getAttrVal(tag, 'data-lazy-src') ||
