@@ -76,6 +76,7 @@
   .topic-badge { background: rgba(79, 142, 247, 0.12); color: var(--accent); border-radius: 4px; padding: 2px 8px; font-size: 11px; font-weight: 500; }
   .company-badge { background: rgba(124, 106, 247, 0.12); color: var(--accent2); border-radius: 4px; padding: 2px 8px; font-size: 11px; }
   .tag-item { color: var(--text2); font-size: 11px; }
+  .image-badge { background: rgba(46, 160, 130, 0.12); color: #2ea082; border-radius: 4px; padding: 2px 8px; font-size: 11px; font-weight: 500; }
 
   /* 빈 상태 */
   .empty { text-align: center; padding: 60px 0; color: var(--text2); }
@@ -97,6 +98,12 @@
   .ingest-submit:disabled { opacity: 0.5; cursor: not-allowed; }
   .ingest-status { font-size: 12px; color: var(--text2); text-align: center; min-height: 18px; }
   .ingest-status.ok { color: var(--green); }
+  .ingest-images-label { font-size: 11px; color: var(--text2); margin-bottom: 6px; }
+  .ingest-images-list { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; }
+  .ingest-image-pick { position: relative; flex: 0 0 auto; cursor: pointer; }
+  .ingest-image-pick img { width: 96px; height: 68px; object-fit: cover; border-radius: 6px; border: 2px solid var(--border); display: block; }
+  .ingest-image-pick input { position: absolute; top: 4px; left: 4px; width: 15px; height: 15px; z-index: 1; }
+  .ingest-image-pick input:checked ~ img { border-color: var(--accent); }
   .ingest-status.err { color: #f46; }
 
   /* 모달 */
@@ -108,6 +115,8 @@
   .modal-meta { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
   .modal-body { padding: 18px 20px; overflow-y: auto; flex: 1; }
   .modal-summary { font-size: 14px; color: var(--text); line-height: 1.75; white-space: pre-wrap; word-break: keep-all; }
+  .modal-images { display: flex; flex-direction: column; gap: 8px; margin-top: 14px; }
+  .modal-images img { width: 100%; border-radius: 8px; border: 1px solid var(--border); display: block; }
   .modal-footer { padding: 14px 20px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
   .modal-link { color: var(--accent); font-size: 13px; text-decoration: none; display: flex; align-items: center; gap: 4px; }
   .modal-link:hover { text-decoration: underline; }
@@ -187,6 +196,11 @@
     <input type="text" class="ingest-url" id="ingestTitleInput" placeholder="기사 제목 직접 입력" style="margin-bottom:6px">
     <textarea class="ingest-url" id="ingestSummaryInput" placeholder="핵심 내용 직접 입력 (선택사항)" rows="3" style="resize:vertical;font-family:inherit;font-size:13px"></textarea>
   </div>
+  <!-- 표/그래픽 등 정보성 이미지 후보 (자동 추출) -->
+  <div id="ingestImagesArea" style="display:none;margin-top:8px">
+    <div class="ingest-images-label">첨부할 이미지 선택 (표·그래픽 감지됨)</div>
+    <div class="ingest-images-list" id="ingestImagesList"></div>
+  </div>
   <div class="ingest-row" style="margin-top:8px">
     <select class="ingest-select" id="ingestTopic">
       <option value="">주제 (선택사항)</option>
@@ -208,6 +222,7 @@
     </div>
     <div class="modal-body">
       <div class="modal-summary" id="modalSummary"></div>
+      <div class="modal-images" id="modalImages" style="display:none"></div>
     </div>
     <div class="modal-footer">
       <a class="modal-link" id="modalLink" href="#" target="_blank" rel="noopener">↗ 기사 원문 보기</a>
@@ -247,6 +262,7 @@ async function loadFromSupabase() {
       topics: Array.isArray(r.topics) ? r.topics : [],
       companies: Array.isArray(r.companies) ? r.companies : [],
       tags: Array.isArray(r.tags) ? r.tags : [],
+      images: Array.isArray(r.images) ? r.images : [],
       source: 'manual'
     }));
   } catch(e) { console.warn('Supabase 로드 실패:', e); return null; }
@@ -258,6 +274,7 @@ async function saveToSupabase(a) {
       id: a.id, title: a.title, url: a.url, summary: a.summary || '',
       date: a.date, topic: a.topic, topics: a.topics || [],
       companies: a.companies || [], tags: a.tags || [],
+      images: a.images || [],
       source: 'manual', post_id: a.post_id || null
     })
   });
@@ -517,6 +534,10 @@ function getTopics(a) {
   return a.topic ? [a.topic] : [];
 }
 
+function getImages(a) {
+  return Array.isArray(a.images) ? a.images : [];
+}
+
 // 키워드 → 주제 자동 매핑 규칙 (구체적 키워드만, 최대 3개 제한)
 const TOPIC_RULES = [
   { topic: '플랫폼',             kw: ['전기통신사업법', '온라인 플랫폼', '온플법', '인앱결제', '앱마켓', '구글플레이', '앱스토어', '망이용료', '망사용료', '망중립성', '넷플릭스법', '플랫폼법', '플랫폼 규제', '플랫폼 독점', '서비스 장애', '서비스장애', '이용자 보호', '이용자보호', '방송통신위원회', '방통위'] },
@@ -613,6 +634,7 @@ function renderCard(a) {
   const tags = a.tags.slice(0, 4).map(t => `<span class="tag-item">#${escHtml(t)}</span>`).join(' ');
   const hasSummary = a.summary && a.summary.trim().length > 0;
   const topicBadges = getTopics(a).map(t => `<span class="topic-badge">${escHtml(t)}</span>`).join('');
+  const imageCount = getImages(a).length;
   return `
     <div class="card" data-id="${escHtml(a.id)}">
       <div class="card-header">
@@ -623,6 +645,7 @@ function renderCard(a) {
       <div class="card-footer">
         ${topicBadges}
         ${companies}
+        ${imageCount ? `<span class="image-badge">🖼 ${imageCount}</span>` : ''}
         ${tags}
       </div>
     </div>`;
@@ -635,6 +658,16 @@ function openModal(a) {
   document.getElementById('modalTitle').textContent = a.title;
   document.getElementById('modalSummary').textContent = a.summary || '발췌 내용이 없습니다.';
   document.getElementById('modalLink').href = a.url;
+
+  const imagesEl = document.getElementById('modalImages');
+  const images = getImages(a);
+  if (images.length) {
+    imagesEl.style.display = 'flex';
+    imagesEl.innerHTML = images.map(src => `<img src="${escHtml(src)}" loading="lazy" alt="첨부 이미지">`).join('');
+  } else {
+    imagesEl.style.display = 'none';
+    imagesEl.innerHTML = '';
+  }
 
   const meta = document.getElementById('modalMeta');
   const companies = getCompanies(a).map(c => `<span class="company-badge">${escHtml(c)}</span>`).join('');
@@ -826,8 +859,8 @@ function extractBalancedTag(html, openTagStart, tagName) {
   return html.slice(openTagEnd); // 못 닫히면 끝까지
 }
 
-function extractBody(html) {
-  // (정규식, 태그명) 순서로 시도 — 매칭되면 균형잡힌 닫는 태그까지 추출
+// (정규식, 태그명) 순서로 시도 — 매칭되면 균형잡힌 닫는 태그까지 추출한 원본(태그 포함) 본문 반환
+function findArticleBodyRaw(html) {
   const patterns = [
     [/<div[^>]+id=["']dic_area["'][^>]*>/i, 'div'],
     [/<div[^>]+class=["'][^"']*newsct_article[^"']*["'][^>]*>/i, 'div'],
@@ -835,14 +868,18 @@ function extractBody(html) {
     [/<article[^>]*>/i, 'article'],
     [/<div[^>]+class=["'][^"']*(?:articleBody|article-body|article_body|news-article)[^"']*["'][^>]*>/i, 'div'],
   ];
-  let raw = null;
   for (const [re, tagName] of patterns) {
     const m = html.match(re);
     if (m) {
-      raw = extractBalancedTag(html, m.index, tagName);
-      if (raw && raw.length > 100) break;
+      const raw = extractBalancedTag(html, m.index, tagName);
+      if (raw && raw.length > 100) return raw;
     }
   }
+  return null;
+}
+
+function extractBody(html) {
+  const raw = findArticleBodyRaw(html);
   if (!raw) return null;
   return raw
     .replace(/<script[\s\S]*?<\/script>/gi, '')
@@ -851,6 +888,75 @@ function extractBody(html) {
     .replace(/<[^>]+>/g, ' ')
     .replace(/\s{2,}/g, ' ')
     .trim();
+}
+
+// 태그 문자열에서 속성값 추출. "-" 뒤에 오는 유사 속성명(예: data-org-src 안의 "src")을 오매칭하지 않도록
+// 속성명 앞이 문자열 시작이거나 공백인 경우만 인정
+function getAttrVal(tag, name) {
+  const re = new RegExp(`(?:^|\\s)${name}\\s*=\\s*["']([^"']*)["']`, 'i');
+  const m = tag.match(re);
+  return m ? m[1] : null;
+}
+
+// 본문 내 정보성 이미지(표·그래픽·인포그래픽) 후보 추출. 그림 삽화/사진 위주 이미지는 낮은 점수로 후순위 처리
+function extractImageCandidates(html) {
+  const raw = findArticleBodyRaw(html);
+  if (!raw) return [];
+
+  const DATA_KEYWORDS = /표|그래프|그래픽|인포그래픽|통계|현황|비교|추이|도표|지도|점유율|자료\s*[:=]|자료\s*제공|출처\s*[:=]/;
+  const NUMERIC_PATTERN = /\d[\d,.]*\s*(억|조|만|천|%|원|달러|명|건)/;
+  // 캡션에 등장하는 "○○○ 기자"는 그래픽·사진 모두에 공통된 바이라인이라 판단 근거로 쓰지 않음
+  const EXCLUDE_CAPTION = /관련\s*기사|광고|배너|ⓒ|아이콘|로고|logo|banner/i;
+  const EXCLUDE_SRC = /logo|icon|profile|banner|_ad_|\/ad\/|blank\.gif|spacer\.gif|1x1/i;
+
+  const candidates = [];
+  const seen = new Set();
+  const imgRe = /<img\b[^>]*>/gi;
+  let m;
+  while ((m = imgRe.exec(raw))) {
+    const tag = m[0];
+    if (/display\s*:\s*none/i.test(tag)) continue; // 숨겨진 트래킹 픽셀 등
+
+    const srcVal = getAttrVal(tag, 'data-org-src') || getAttrVal(tag, 'data-src') ||
+                   getAttrVal(tag, 'data-original') || getAttrVal(tag, 'data-lazy-src') ||
+                   getAttrVal(tag, 'data-lazy') || getAttrVal(tag, 'src');
+    if (!srcVal) continue;
+    let src = decodeHtmlEntities(srcVal);
+    if (!src || src.startsWith('data:')) continue;
+    if (src.startsWith('//')) src = 'https:' + src;
+    if (!/^https?:\/\//i.test(src)) continue;
+    if (EXCLUDE_SRC.test(src) || seen.has(src)) continue;
+
+    // 아이콘 크기의 이미지 제외
+    const wAttr = +(getAttrVal(tag, 'width') || 0);
+    const hAttr = +(getAttrVal(tag, 'height') || 0);
+    if ((wAttr > 0 && wAttr < 120) || (hAttr > 0 && hAttr < 120)) continue;
+
+    // 태그 주변 컨텍스트에서 캡션(alt/figcaption/이미지 설명) 텍스트 확보 — 중복 문구는 한 번만 반영
+    const ctxEnd = Math.min(raw.length, m.index + tag.length + 500);
+    const context = raw.slice(m.index + tag.length, ctxEnd);
+    const altVal = getAttrVal(tag, 'alt');
+    const figcapMatch = context.match(/<figcaption[^>]*>([\s\S]*?)<\/figcaption>/i);
+    const emCapMatch = context.match(/<em[^>]+class=["'][^"']*(?:img_desc|caption)[^"']*["'][^>]*>([\s\S]*?)<\/em>/i);
+    const parts = [altVal, figcapMatch?.[1], emCapMatch?.[1]]
+      .filter(Boolean)
+      .map(s => decodeHtmlEntities(s.replace(/<[^>]+>/g, ' ')).replace(/\s{2,}/g, ' ').trim());
+    const caption = [...new Set(parts)].join(' ');
+
+    let score = 0;
+    if (DATA_KEYWORDS.test(caption)) score += 3;
+    if (NUMERIC_PATTERN.test(caption)) score += 2;
+    if (EXCLUDE_CAPTION.test(caption)) score -= 3;
+
+    seen.add(src);
+    candidates.push({ src, caption, score });
+  }
+
+  // 점수순 정렬 후 상위 8개만 후보로 제시. 데이터 신호가 있는 이미지만 기본 선택 체크
+  return candidates
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 8)
+    .map(c => ({ ...c, preselect: c.score > 0 }));
 }
 
 function extractiveSummarize(ogDesc, body) {
@@ -938,6 +1044,7 @@ document.getElementById('ingestFetch').addEventListener('click', async () => {
     const ogDesc = decodeHtmlEntities(getMeta(html, 'og:description') || getMeta(html, 'twitter:description') || getMeta(html, 'description', 'name'));
     const bodyText = extractBody(html);
     const summary = extractiveSummarize(ogDesc, bodyText);
+    const imageCandidates = extractImageCandidates(html);
 
     if (title) {
       // 성공: 수동 입력란에 미리 채워두기 (편집 가능)
@@ -950,14 +1057,33 @@ document.getElementById('ingestFetch').addEventListener('click', async () => {
       // 발행일도 저장
       document.getElementById('ingestUrl').dataset.pubdate = extractPubDate(html);
       document.getElementById('ingestUrl').dataset.fetched = '1';
+      renderImageCandidates(imageCandidates);
     } else {
       showManualInput(statusEl, manualArea);
+      renderImageCandidates([]);
     }
   } else {
     showManualInput(statusEl, manualArea);
+    renderImageCandidates([]);
   }
   document.getElementById('ingestFetch').disabled = false;
 });
+
+// 표/그래픽 후보 이미지를 인제스트 패널에 체크박스와 함께 렌더링
+function renderImageCandidates(candidates) {
+  const area = document.getElementById('ingestImagesArea');
+  const list = document.getElementById('ingestImagesList');
+  list.innerHTML = '';
+  if (!candidates.length) { area.style.display = 'none'; return; }
+  area.style.display = 'block';
+  candidates.forEach(c => {
+    const label = document.createElement('label');
+    label.className = 'ingest-image-pick';
+    if (c.caption) label.title = c.caption;
+    label.innerHTML = `<input type="checkbox" data-src="${escHtml(c.src)}" ${c.preselect ? 'checked' : ''}><img src="${escHtml(c.src)}" loading="lazy">`;
+    list.appendChild(label);
+  });
+}
 
 function showManualInput(statusEl, manualArea) {
   manualArea.style.display = 'block';
@@ -990,6 +1116,7 @@ document.getElementById('ingestSubmit').addEventListener('click', async () => {
 
   const autoTopics = autoTagTopics(title, summary);
   const finalTopics = topic ? [...new Set([topic, ...autoTopics])] : (autoTopics.length ? autoTopics : ['미분류']);
+  const selectedImages = Array.from(document.querySelectorAll('#ingestImagesList input:checked')).map(inp => inp.dataset.src);
   const newArticle = {
     id: `manual_${Date.now()}`,
     title,
@@ -1000,6 +1127,7 @@ document.getElementById('ingestSubmit').addEventListener('click', async () => {
     topics: finalTopics,
     companies: company ? [company] : [],
     tags: [],
+    images: selectedImages,
     source: 'manual'
   };
 
@@ -1020,6 +1148,7 @@ document.getElementById('ingestSubmit').addEventListener('click', async () => {
   document.getElementById('ingestTitleInput').value = '';
   document.getElementById('ingestSummaryInput').value = '';
   document.getElementById('ingestManualArea').style.display = 'none';
+  renderImageCandidates([]);
   statusEl.className = 'ingest-status ok';
   statusEl.textContent = `✓ 저장됨: ${title.slice(0, 35)}`;
   render();
