@@ -1,0 +1,829 @@
+<title>엄마랑 운남성</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@700&family=Noto+Sans+KR:wght@400;600;800&display=swap">
+<style>
+/* Layout: one narrow column for a phone held by mom — big type, a sticky tab bar, one card per day, details folded at the end */
+:root{
+  --bg:#EEF3F2; --surface:#FFFFFF; --sunk:#E2EAE9; --line:#CBD8D7;
+  --fg:#15262A; --muted:#55686B;
+  --lake:#0D727A; --lake-soft:#D5ECEC;
+  --saffron:#A85F12; --saffron-soft:#F8E8D2;
+  --danger:#AE2A20; --danger-soft:#F7DEDB;
+  --f-display:"Gowun Batang","Noto Serif KR",serif;
+  --f-body:"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  --f-zh:"PingFang SC","Noto Sans SC","Noto Sans CJK SC","Microsoft YaHei",sans-serif;
+  --r:14px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0D1618; --surface:#152225; --sunk:#1B2C30; --line:#2A3F43;
+  --fg:#E5EEEE; --muted:#9DB0B2;
+  --lake:#5CC6CC; --lake-soft:#173A3D;
+  --saffron:#EDA65A; --saffron-soft:#3A2A17;
+  --danger:#FF8F84; --danger-soft:#3D1D1A; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0D1618; --surface:#152225; --sunk:#1B2C30; --line:#2A3F43;
+  --fg:#E5EEEE; --muted:#9DB0B2;
+  --lake:#5CC6CC; --lake-soft:#173A3D;
+  --saffron:#EDA65A; --saffron-soft:#3A2A17;
+  --danger:#FF8F84; --danger-soft:#3D1D1A; color-scheme:dark}
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:19px;line-height:1.65;word-break:keep-all;overflow-wrap:anywhere}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--lake)}
+.wrap{max-width:640px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{text-wrap:balance;margin:0}
+h2{font-family:var(--f-display);font-size:1.5rem;line-height:1.3}
+h3{font-size:1.15rem;font-weight:800;line-height:1.4}
+p{margin:0}
+b,strong{font-weight:800}
+a{color:var(--lake)}
+:focus-visible{outline:3px solid var(--saffron);outline-offset:2px;border-radius:6px}
+
+/* hero */
+.hero{background:var(--lake);color:#fff}
+.hero .wrap{padding-block:28px 22px;display:grid;gap:14px}
+.hero h1{font-family:var(--f-display);font-size:2.1rem;line-height:1.2;color:#fff}
+.hero .dates{font-size:1.05rem;color:#fff;opacity:.95}
+.route{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;font-weight:600;font-size:1rem}
+.route span.city{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.35);padding:2px 12px;border-radius:999px;color:#fff}
+.route span.arr{opacity:.8;color:#fff}
+.today{background:rgba(0,0,0,.18);border-radius:var(--r);padding:12px 14px;font-size:1.05rem;color:#fff}
+.today a{color:#fff;font-weight:800}
+
+/* tabs */
+nav.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--surface);border-bottom:1px solid var(--line)}
+nav.tabs .wrap{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;padding-block:8px}
+nav.tabs .wrap::-webkit-scrollbar{display:none}
+nav.tabs a{flex:0 0 auto;text-decoration:none;color:var(--fg);font-weight:600;font-size:.95rem;padding:8px 14px;border-radius:999px;background:var(--sunk)}
+nav.tabs a.on{background:var(--lake);color:var(--surface)}
+
+main .wrap{display:grid;gap:36px;padding-block:24px 60px}
+section{display:grid;gap:14px;scroll-margin-top:calc(env(safe-area-inset-top,0px) + 64px)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px;display:grid;gap:10px}
+.lead{color:var(--muted);font-size:1rem}
+
+/* meeting */
+.meet .time{font-size:1.6rem;font-weight:800;color:var(--lake);line-height:1.2}
+.meet .place{font-size:1.2rem;font-weight:800}
+.note{background:var(--saffron-soft);color:var(--fg);border-radius:10px;padding:10px 12px;font-size:1rem}
+.note b{color:var(--saffron)}
+
+/* three things */
+.three{display:grid;gap:12px}
+.three .card h3{display:flex;gap:10px;align-items:baseline}
+.three .num{flex:0 0 auto;width:1.8em;height:1.8em;border-radius:50%;background:var(--lake-soft);color:var(--lake);display:inline-grid;place-items:center;font-size:.95rem}
+ul.dots{margin:0;padding-left:1.1em;display:grid;gap:4px}
+
+/* altitude */
+.alt svg{width:100%;height:auto;display:block}
+.alt .cap{font-size:.95rem;color:var(--muted)}
+
+/* days */
+.day{padding:0;overflow:hidden;gap:0}
+.day.is-today{border:3px solid var(--saffron)}
+.day header{padding:16px 18px 12px;display:grid;gap:4px;border-bottom:1px solid var(--line)}
+.day .when{font-size:.95rem;color:var(--muted);font-weight:600;font-variant-numeric:tabular-nums}
+.day .badge{justify-self:start;font-size:.85rem;font-weight:800;padding:2px 10px;border-radius:999px;background:var(--saffron-soft);color:var(--saffron)}
+.day .badge.today-b{background:var(--saffron);color:var(--surface)}
+.day ol{list-style:none;margin:0;padding:12px 18px;display:grid;gap:10px}
+.day li{display:grid;grid-template-columns:2em 1fr;gap:6px;align-items:start}
+.day li .ic{font-size:1.15rem;line-height:1.5}
+.day dl{margin:0;padding:12px 18px 16px;background:var(--sunk);display:grid;gap:8px}
+.day dl div{display:grid;grid-template-columns:4.6em 1fr;gap:8px}
+.day dt{font-weight:800;color:var(--lake);font-size:.95rem;padding-top:2px}
+.day dd{margin:0;min-width:0}
+.day dd.warn{color:var(--danger);font-weight:600}
+
+/* checklist */
+.check{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.check label{display:flex;gap:12px;align-items:flex-start;padding:10px 12px;border-radius:10px;background:var(--sunk);cursor:pointer;min-height:48px}
+.check input{width:26px;height:26px;flex:0 0 auto;margin-top:2px;accent-color:var(--lake)}
+.check input:checked + span{color:var(--muted);text-decoration:line-through}
+.progress{font-weight:800;color:var(--lake);font-variant-numeric:tabular-nums}
+.ban{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.ban li{background:var(--danger-soft);border-radius:10px;padding:10px 12px}
+.ban li b{color:var(--danger)}
+.reset{justify-self:start;font:inherit;font-size:.9rem;background:none;border:1px solid var(--line);color:var(--muted);border-radius:999px;padding:4px 14px;cursor:pointer}
+
+/* help */
+.help h3{color:var(--danger)}
+.steps{margin:0;padding-left:1.4em;display:grid;gap:4px}
+.phone{display:grid;gap:4px;padding:12px 0;border-top:1px solid var(--line)}
+.phone:first-of-type{border-top:0;padding-top:0}
+.phone .who{font-weight:600}
+.phone .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.phone .num{font-size:1.3rem;font-weight:800;font-variant-numeric:tabular-nums;user-select:all;letter-spacing:.01em}
+.btn{font:inherit;font-size:.95rem;font-weight:600;border:1px solid var(--lake);color:var(--lake);background:var(--surface);border-radius:999px;padding:4px 14px;text-decoration:none;cursor:pointer}
+.btn.fill{background:var(--lake);color:var(--surface)}
+.hotels{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.hotels li{display:grid;gap:0}
+.hotels small{color:var(--muted);font-size:.9rem}
+.hotels .zh{font-family:var(--f-zh);font-size:1rem}
+
+/* phrases */
+.phrases{display:grid;gap:10px}
+.phrase{all:unset;box-sizing:border-box;display:grid;gap:4px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px 18px;cursor:pointer}
+.phrase:focus-visible{outline:3px solid var(--saffron)}
+.phrase .ko{color:var(--muted);font-size:1rem}
+.phrase .zh{font-family:var(--f-zh);font-size:1.9rem;font-weight:700;line-height:1.3;color:var(--fg)}
+.big{position:fixed;inset:0;z-index:20;background:var(--surface);display:grid;place-items:center;text-align:center;
+  padding:calc(24px + env(safe-area-inset-top,0px)) max(20px,env(safe-area-inset-right,0px)) calc(24px + env(safe-area-inset-bottom,0px)) max(20px,env(safe-area-inset-left,0px))}
+.big .zh{font-family:var(--f-zh);font-weight:700;font-size:clamp(3rem,15vw,7rem);line-height:1.25;color:var(--fg)}
+.big .ko{font-size:1.2rem;color:var(--muted);margin-top:16px}
+.big .close{margin-top:28px}
+
+/* details for 수민 */
+details{background:var(--surface);border:1px solid var(--line);border-radius:var(--r)}
+details>summary{cursor:pointer;padding:14px 18px;font-weight:800;list-style:none;display:flex;justify-content:space-between;gap:12px}
+details>summary::-webkit-details-marker{display:none}
+details>summary::after{content:"+";color:var(--lake);font-size:1.3rem;line-height:1}
+details[open]>summary::after{content:"–"}
+details .in{padding:0 18px 18px;display:grid;gap:12px;font-size:1rem}
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:10px}
+table{border-collapse:collapse;width:100%;min-width:520px;font-size:.92rem;line-height:1.5}
+th,td{text-align:left;vertical-align:top;padding:8px 10px;border-bottom:1px solid var(--line)}
+th{background:var(--sunk);font-weight:800;white-space:nowrap}
+tr:last-child td{border-bottom:0}
+td.n{font-variant-numeric:tabular-nums;white-space:nowrap}
+.zhn{font-family:var(--f-zh)}
+.small{font-size:.9rem;color:var(--muted)}
+.uncertain{color:var(--saffron);font-weight:600}
+footer{color:var(--muted);font-size:.9rem;padding-top:8px}
+</style>
+
+<header class="hero">
+  <div class="wrap">
+    <h1>엄마랑 운남성</h1>
+    <p class="dates"><b>11월 16일(월) 저녁</b> 출발 · <b>11월 21일(토) 새벽</b> 도착</p>
+    <div class="route" aria-label="여행 순서">
+      <span class="city">쿤밍</span><span class="arr">→</span>
+      <span class="city">샹그릴라</span><span class="arr">→</span>
+      <span class="city">리장</span><span class="arr">→</span>
+      <span class="city">쿤밍</span>
+    </div>
+    <div class="today" id="todayBox" hidden></div>
+  </div>
+</header>
+
+<nav class="tabs" aria-label="바로가기">
+  <div class="wrap" id="tabs">
+    <a href="#meet">만나는 곳</a>
+    <a href="#days">날짜별 일정</a>
+    <a href="#bag">가방 싸기</a>
+    <a href="#help">급할 때</a>
+    <a href="#zh">중국어 카드</a>
+    <a href="#more">자세히</a>
+  </div>
+</nav>
+
+<main>
+<div class="wrap">
+
+<!-- 만나는 곳 -->
+<section id="meet">
+  <h2>공항에서 만나는 곳</h2>
+  <div class="card meet">
+    <p class="time">11월 16일 (월) 오후 4시 15분</p>
+    <p class="place">인천공항 제2여객터미널 3층</p>
+    <p>1번 출입문 (A카운터 옆) 여행사 카운터 안 <b>하나투어 테이블</b></p>
+    <p class="note">여권은 예약할 때 보낸 <b>그 여권</b>을 꼭 가져오세요. 다른 여권이면 비행기를 못 타요.</p>
+  </div>
+</section>
+
+<!-- 꼭 기억할 세 가지 -->
+<section id="three">
+  <h2>꼭 기억할 세 가지</h2>
+  <div class="three">
+    <div class="card">
+      <h3><span class="num">1</span>아주 높은 곳에 가요</h3>
+      <ul class="dots">
+        <li>백두산보다 높은 곳에서 하룻밤을 자요.</li>
+        <li><b>천천히</b> 걷고, <b>물을 자주</b> 드세요.</li>
+        <li>머리가 아프거나 숨이 차면 <b>참지 말고 바로</b> 말씀하세요.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3><span class="num">2</span>아침저녁은 한겨울, 낮은 가을이에요</h3>
+      <ul class="dots">
+        <li>두꺼운 옷 한 벌보다 <b>얇은 옷 여러 겹</b>이 좋아요.</li>
+        <li>더우면 벗고, 추우면 다시 입으세요.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3><span class="num">3</span>여권과 약은 늘 몸에 지니세요</h3>
+      <ul class="dots">
+        <li>큰 가방이 아니라 <b>작은 손가방</b>에 넣어 두세요.</li>
+        <li>중국은 한국보다 <b>1시간 느려요</b>. 시계는 휴대폰이 알아서 맞춰 줘요.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card alt">
+    <h3>날마다 얼마나 높은 곳에 가나요</h3>
+    <svg viewBox="0 0 340 210" role="img" aria-label="날짜별 높이. 첫날 쿤밍 1,900미터, 둘째 날 샹그릴라 3,300미터, 셋째 날 리장 2,400미터, 넷째 날 옥룡설산 4,506미터에 올랐다가 쿤밍 1,900미터, 다섯째 날 쿤밍 1,900미터. 백두산은 2,744미터.">
+      <g font-family="Noto Sans KR, sans-serif" font-size="11">
+        <!-- scale: y = 180 - alt*0.03 (0m → 180, 5000m → 30) -->
+        <line x1="20" x2="330" y1="180" y2="180" stroke="var(--line)"/>
+        <line x1="20" x2="330" y1="97.7" y2="97.7" stroke="var(--saffron)" stroke-dasharray="4 4"/>
+        <text x="330" y="92" text-anchor="end" fill="var(--saffron)" font-weight="600">백두산 2,744m</text>
+        <!-- bars: sleeping altitude -->
+        <rect x="32"  y="123" width="40" height="57" rx="5" fill="var(--lake-soft)"/>
+        <rect x="94"  y="81"  width="40" height="99" rx="5" fill="var(--lake)"/>
+        <rect x="156" y="108" width="40" height="72" rx="5" fill="var(--lake-soft)"/>
+        <rect x="218" y="123" width="40" height="57" rx="5" fill="var(--lake-soft)"/>
+        <rect x="280" y="123" width="40" height="57" rx="5" fill="var(--lake-soft)"/>
+        <!-- peak on day 4 -->
+        <line x1="238" x2="238" y1="123" y2="44.8" stroke="var(--danger)" stroke-width="2" stroke-dasharray="3 3"/>
+        <circle cx="238" cy="44.8" r="5" fill="var(--danger)"/>
+        <text x="238" y="34" text-anchor="middle" fill="var(--danger)" font-weight="800">4,506m</text>
+        <!-- values -->
+        <text x="52"  y="117" text-anchor="middle" fill="var(--fg)" font-weight="600">1,900</text>
+        <text x="114" y="75"  text-anchor="middle" fill="var(--fg)" font-weight="800">3,300</text>
+        <text x="176" y="102" text-anchor="middle" fill="var(--fg)" font-weight="600">2,400</text>
+        <text x="300" y="117" text-anchor="middle" fill="var(--fg)" font-weight="600">1,900</text>
+        <!-- day labels -->
+        <text x="52"  y="196" text-anchor="middle" fill="var(--muted)">16일 쿤밍</text>
+        <text x="114" y="196" text-anchor="middle" fill="var(--muted)">17일 샹그릴라</text>
+        <text x="176" y="196" text-anchor="middle" fill="var(--muted)">18일 리장</text>
+        <text x="238" y="196" text-anchor="middle" fill="var(--muted)">19일 설산</text>
+        <text x="300" y="196" text-anchor="middle" fill="var(--muted)">20일 쿤밍</text>
+      </g>
+    </svg>
+    <p class="cap">막대는 그날 밤 자는 곳의 높이(m)예요. 17일 밤이 가장 높고, 19일 낮에는 케이블카로 4,506m까지 잠깐 올라가요.</p>
+  </div>
+</section>
+
+<!-- 날짜별 일정 -->
+<section id="days">
+  <h2>날짜별 일정</h2>
+  <p class="lead">날씨는 예보라서 조금 달라질 수 있어요.</p>
+
+  <article class="card day" data-date="2026-11-16" id="d1">
+    <header>
+      <span class="when">첫째 날 · 11월 16일 (월)</span>
+      <h3>쿤밍 도착</h3>
+    </header>
+    <ol>
+      <li><span class="ic">🧑‍🤝‍🧑</span><span>오후 4시 15분 인천공항에서 여행사 만나기</span></li>
+      <li><span class="ic">✈️</span><span>저녁 6시 45분 비행기 출발 (기내식 나와요)</span></li>
+      <li><span class="ic">🛬</span><span>밤 10시 45분 쿤밍 도착 (중국 시간)</span></li>
+      <li><span class="ic">🛂</span><span>입국할 때 여권과 휴대폰 QR코드를 보여 주세요</span></li>
+      <li><span class="ic">🧳</span><span>짐 찾을 때 가방이 망가졌으면 그 자리에서 항공사에 바로 말하세요</span></li>
+      <li><span class="ic">🏨</span><span>가이드 김해월 님 만나서 호텔로 가요</span></li>
+    </ol>
+    <dl>
+      <div><dt>날씨</dt><dd>밤 13도쯤, 선선해요</dd></div>
+      <div><dt>옷</dt><dd>편한 바지, 긴팔, 얇은 패딩</dd></div>
+      <div><dt>한마디</dt><dd>도착하면 바로 푹 주무세요.</dd></div>
+    </dl>
+  </article>
+
+  <article class="card day" data-date="2026-11-17" id="d2">
+    <header>
+      <span class="when">둘째 날 · 11월 17일 (화)</span>
+      <h3>샹그릴라</h3>
+      <span class="badge">가장 힘든 날</span>
+    </header>
+    <ol>
+      <li><span class="ic">🚄</span><span>기차 타고 리장으로 (3시간 반)</span></li>
+      <li><span class="ic">🚌</span><span>차 타고 호도협 협곡으로 (2시간)</span></li>
+      <li><span class="ic">🥾</span><span>협곡 길 걷기 (2시간)</span></li>
+      <li><span class="ic">🚌</span><span>차 타고 샹그릴라로 (2시간)</span></li>
+      <li><span class="ic">🏯</span><span>저녁 먹고 옛 마을 구경, 커다란 황금 통(마니차) 같이 돌리며 소원 빌기</span></li>
+      <li><span class="ic">🏨</span><span>옛 마을 안 그레이스 객잔에서 자요</span></li>
+    </ol>
+    <dl>
+      <div><dt>날씨</dt><dd>낮 10~19도, 밤 <b>영하 5도</b></dd></div>
+      <div><dt>옷</dt><dd>내복 + 긴팔 + 플리스, 운동화, 모자와 선글라스. 저녁엔 긴 패딩, 장갑, 털모자까지.</dd></div>
+      <div><dt>조심</dt><dd class="warn">기차에서 꼭 주무세요. 걷다가 힘들면 바로 말씀하세요. 안 걷고 전망대에서 쉬어도 돼요. 오늘 밤은 아주 높은 곳에서 자니 샤워는 짧게, 술은 드시지 마세요.</dd></div>
+      <div><dt>맛볼 것</dt><dd>야크 요구르트 (진하고 새콤해요)</dd></div>
+    </dl>
+  </article>
+
+  <article class="card day" data-date="2026-11-18" id="d3">
+    <header>
+      <span class="when">셋째 날 · 11월 18일 (수)</span>
+      <h3>샹그릴라 → 리장</h3>
+    </header>
+    <ol>
+      <li><span class="ic">🛕</span><span>티베트 큰 절 송찬림사 (계단 120개, 한 걸음씩 천천히)</span></li>
+      <li><span class="ic">🏞️</span><span>납파해 호수, 티베트 가정집에서 버터차와 보리빵</span></li>
+      <li><span class="ic">🍲</span><span>점심: 야크고기 샤브샤브</span></li>
+      <li><span class="ic">🚌</span><span>차 타고 리장으로 (2시간)</span></li>
+      <li><span class="ic">🌊</span><span>설산이 비치는 흑룡담 호수 산책</span></li>
+      <li><span class="ic">🐴</span><span>옛 마을 속하고진을 마차 타고 구경 (1시간, 커피 한 잔)</span></li>
+      <li><span class="ic">🍚</span><span>저녁: 한식</span></li>
+      <li><span class="ic">💆</span><span>전신 마사지 (1시간)</span></li>
+      <li><span class="ic">🌃</span><span>힘이 남으면 리장 옛 마을 밤 산책</span></li>
+      <li><span class="ic">🏨</span><span>왕부객잔에서 자요</span></li>
+    </ol>
+    <dl>
+      <div><dt>날씨</dt><dd>아침 영하, 리장은 낮 15도쯤</dd></div>
+      <div><dt>옷</dt><dd>아침엔 꽁꽁 싸매고, 리장에 도착하면 패딩 벗어 들고 다니세요.</dd></div>
+      <div><dt>맛볼 것</dt><dd>리장 빵 (겹겹이 구운 납작한 빵). 버터차는 짠맛이라 한두 모금만 맛보세요.</dd></div>
+    </dl>
+  </article>
+
+  <article class="card day" data-date="2026-11-19" id="d4">
+    <header>
+      <span class="when">넷째 날 · 11월 19일 (목)</span>
+      <h3>설산 → 쿤밍</h3>
+      <span class="badge">가장 추운 날</span>
+    </header>
+    <ol>
+      <li><span class="ic">🚡</span><span>옥룡설산 케이블카 타고 눈 덮인 산 위로 (이번 여행에서 가장 높고 추운 곳)</span></li>
+      <li><span class="ic">💎</span><span>옥빛 호수 람월곡</span></li>
+      <li><span class="ic">🍚</span><span>점심: 산채비빔밥</span></li>
+      <li><span class="ic">🎭</span><span>설산 앞 야외 공연 인상여강쇼</span></li>
+      <li><span class="ic">📸</span><span>리장 옛 마을, 커다란 물레방아 앞에서 사진</span></li>
+      <li><span class="ic">🚄</span><span>저녁 먹고 기차로 쿤밍 (3시간 반)</span></li>
+      <li><span class="ic">🏨</span><span>엠파크 그랜드 호텔에서 자요</span></li>
+    </ol>
+    <dl>
+      <div><dt>날씨</dt><dd>산 위는 영하에 바람이 세요. 아래는 15도쯤.</dd></div>
+      <div><dt>옷</dt><dd>가진 옷 중 제일 두꺼운 것 전부. 장갑, 털모자, 선글라스 꼭.</dd></div>
+      <div><dt>조심</dt><dd class="warn">산 위에서는 아주 천천히 걷고, 사진 몇 장 찍고 내려오세요. 머리가 아프면 바로 말씀하세요. 산소캔은 기차 타기 전에 다 쓰세요.</dd></div>
+      <div><dt>맛볼 것</dt><dd>리장 묵 (콩으로 만든 묵, 구워 먹어도 맛있어요)</dd></div>
+    </dl>
+  </article>
+
+  <article class="card day" data-date="2026-11-20" id="d5">
+    <header>
+      <span class="when">다섯째 날 · 11월 20일 (금)</span>
+      <h3>쿤밍 → 집으로</h3>
+    </header>
+    <ol>
+      <li><span class="ic">🪨</span><span>돌로 된 숲 석림 (전동차 타고 구경)</span></li>
+      <li><span class="ic">🦆</span><span>점심: 오리구이</span></li>
+      <li><span class="ic">🕳️</span><span>큰 동굴 구향동굴 (3km 걷고, 나올 땐 리프트)</span></li>
+      <li><span class="ic">🍄</span><span>저녁: 송이버섯 샤브샤브</span></li>
+      <li><span class="ic">✈️</span><span>공항으로, 밤 11시 55분 출발 (비행기에서 자요)</span></li>
+    </ol>
+    <dl>
+      <div><dt>날씨</dt><dd>10~17도, 비 소식</dd></div>
+      <div><dt>옷</dt><dd>우비나 우산, 미끄럽지 않은 신발. 동굴 바닥이 젖어 있어요.</dd></div>
+      <div><dt>선물</dt><dd>장미 과자 (선화빙) — 공항에서</dd></div>
+    </dl>
+  </article>
+
+  <article class="card day" data-date="2026-11-21" id="d6">
+    <header>
+      <span class="when">여섯째 날 · 11월 21일 (토)</span>
+      <h3>인천 도착</h3>
+    </header>
+    <ol>
+      <li><span class="ic">🛬</span><span><b>새벽 5시 5분 인천 도착.</b> 새벽이라 추우니 손가방의 패딩을 꺼내 입으세요.</span></li>
+    </ol>
+  </article>
+</section>
+
+<!-- 가방 싸기 -->
+<section id="bag">
+  <h2>가방 싸기</h2>
+  <p class="lead">챙긴 것은 눌러서 체크하세요. 체크한 건 이 휴대폰에 남아 있어요. <span class="progress" id="prog"></span></p>
+
+  <div class="card">
+    <h3>작은 손가방에</h3>
+    <ul class="check" data-group="hand">
+      <li>여권</li>
+      <li>평소 드시는 약 (며칠 더 넉넉히)</li>
+      <li>약 이름 적은 쪽지</li>
+      <li>휴대폰, 충전기, 보조배터리</li>
+      <li>얇은 패딩 (비행기 안, 새벽 귀국 때 입기)</li>
+      <li>목베개, 마스크</li>
+      <li>휴대폰 속 입국 QR코드 (수민이가 미리 만들어 드려요)</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>큰 가방에</h3>
+    <ul class="check" data-group="big">
+      <li>세면도구 (치약, 칫솔, 샴푸, 린스) — 중국 호텔엔 없을 수 있어요</li>
+      <li>방에서 신을 슬리퍼</li>
+      <li>긴 두꺼운 패딩 1벌</li>
+      <li>플리스나 두꺼운 니트 1벌</li>
+      <li>긴팔 옷 3~4벌</li>
+      <li>내복(발열내의) 3벌</li>
+      <li>장갑, 털모자, 목도리</li>
+      <li>편한 운동화 + 여벌 신발</li>
+      <li>우비 또는 작은 우산</li>
+      <li>선크림 (짜서 바르는 것), 선글라스, 챙모자</li>
+      <li>립밤, 진한 로션</li>
+      <li>핫팩, 수면양말</li>
+      <li>손톱깎이, 100ml 넘는 화장품 — 비행기에선 손가방 말고 큰 가방에</li>
+    </ul>
+    <p class="small">드라이기는 호텔에 있어요. 콘센트도 한국 것 그대로 쓸 수 있다고 해요.</p>
+  </div>
+
+  <div class="card">
+    <h3>가져가면 안 되는 것</h3>
+    <p>기차를 두 번 타는데, 아래 물건은 <b>기차역에서 빼앗겨요.</b></p>
+    <ul class="ban">
+      <li><b>뿌리는 것 전부</b> (선크림 스프레이, 헤어스프레이, 모기약)</li>
+      <li><b>산소캔</b> — 현지에서 사서 쓰고, 기차 타기 전에 다 쓰세요</li>
+      <li><b>큰 향수</b> (100ml 넘는 것)</li>
+      <li><b>큰 칼, 가스 들어간 물건</b></li>
+      <li><b>보조배터리</b>는 큰 가방에 넣으면 안 돼요. 꼭 손가방에.</li>
+    </ul>
+  </div>
+  <button class="reset" id="resetBtn" type="button">체크 모두 지우기</button>
+  <p class="small" id="resetAsk" hidden>정말 지울까요? <button class="btn" id="resetYes" type="button">지우기</button> <button class="btn" id="resetNo" type="button">그대로 두기</button></p>
+</section>
+
+<!-- 급할 때 -->
+<section id="help">
+  <h2>이럴 땐 이렇게</h2>
+  <div class="card help">
+    <h3>머리가 아프고 숨이 차요</h3>
+    <ol class="steps"><li>그 자리에 앉아 쉬세요.</li><li>가이드에게 바로 말하세요.</li><li>산소캔을 천천히 마시세요.</li></ol>
+  </div>
+  <div class="card help">
+    <h3>길을 잃었어요</h3>
+    <ol class="steps"><li>움직이지 말고 그 자리에 계세요.</li><li>수민이에게 전화하세요.</li><li>아래 <a href="#zh">중국어 카드</a>를 가게 사람에게 보여 주세요.</li></ol>
+  </div>
+  <div class="card help">
+    <h3>크게 다쳤거나 많이 아파요</h3>
+    <ol class="steps"><li>가이드에게 먼저 알리세요.</li><li>구급차 <b>120</b> · 경찰 <b>110</b></li></ol>
+    <p class="small">한국 휴대폰으로 안 걸리면 앞에 <b>+86</b>을 붙여 주세요.</p>
+  </div>
+  <div class="card help">
+    <h3>여권을 잃어버렸어요</h3>
+    <ol class="steps"><li>가이드에게 바로 알리세요.</li><li>아래 대사관 번호로 연락하세요.</li></ol>
+  </div>
+
+  <h2>연락처</h2>
+  <div class="card" id="phones">
+    <div class="phone" data-num="+8618669069035">
+      <span class="who">현지 가이드 김해월 님 (여자분)</span>
+      <div class="row"><span class="num">+86 186-6906-9035</span></div>
+    </div>
+    <div class="phone" data-num="" id="suminPhone" hidden>
+      <span class="who">수민</span>
+      <div class="row"><span class="num"></span></div>
+    </div>
+    <div class="phone" data-num="+8618611730089">
+      <span class="who">주중국 대한민국 대사관 긴급전화 (24시간)</span>
+      <div class="row"><span class="num">+86-186-1173-0089</span></div>
+    </div>
+    <div class="phone" data-num="+82232100404">
+      <span class="who">영사콜센터 (서울, 24시간)</span>
+      <div class="row"><span class="num">+82-2-3210-0404</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>묵는 호텔</h3>
+    <ul class="hotels">
+      <li><span>쿤밍: <b>엠파크 그랜드 호텔</b></span><span class="zh">昆明世纪金源大饭店</span><small>첫째 날, 넷째 날</small></li>
+      <li><span>샹그릴라: <b>그레이스 객잔</b> — 옛 마을 안</span><span class="zh">香格里拉第5颗陨石·光年酒店(独克宗古城店)</span><small>둘째 날</small></li>
+      <li><span>리장: <b>왕부객잔</b></span><span class="zh">王府客栈</span><small>셋째 날</small></li>
+    </ul>
+    <p class="small">일행은 모두 25명이고, 큰 버스 한 대로 같이 다녀요.</p>
+  </div>
+</section>
+
+<!-- 중국어 카드 -->
+<section id="zh">
+  <h2>보여 주는 중국어 카드</h2>
+  <p class="lead">말하지 않아도 돼요. 카드를 누르면 화면 가득 크게 나와요. 그대로 보여 주세요.</p>
+  <div class="phrases" id="phrases"></div>
+</section>
+
+<!-- 자세히 (수민용) -->
+<section id="more">
+  <h2>자세히 (수민용)</h2>
+  <p class="lead">선택관광, 날씨·코디, 출발 전 체크리스트, 도시별 갈 곳·먹을 것.</p>
+
+  <details>
+    <summary>한눈에 보는 동선·숙소·식사</summary>
+    <div class="in">
+      <div class="tbl"><table>
+        <thead><tr><th>날짜</th><th>동선</th><th>숙소</th><th>식사</th></tr></thead>
+        <tbody>
+          <tr><td class="n">11/16 월</td><td>16:15 인천 T2 3층 하나투어 미팅 → 18:45 출발 → 쿤밍 22:45 (KE161) → 가이드 미팅</td><td>엠파크 그랜드 쿤밍 <span class="zhn">昆明世纪金源大饭店</span> · 관도구</td><td>석: 기내식</td></tr>
+          <tr><td class="n">11/17 화</td><td>쿤밍→리장 고속열차 약 3시간 30분 → 호도협 <span class="zhn">虎跳峡</span> (차 2시간) → 샹그릴라 (차 2시간) → 두커종 고성 <span class="zhn">独克宗古城</span></td><td>그레이스 객잔 (두커종 고성점)</td><td>조 호텔 · 중·석 현지식</td></tr>
+          <tr><td class="n">11/18 수</td><td>송찬림사 <span class="zhn">松赞林寺</span> · 납파해 <span class="zhn">纳帕海</span> · 장족민가 → 리장 (차 2시간) → 흑룡담 <span class="zhn">黑龙潭</span> · 속하고진 <span class="zhn">束河古镇</span></td><td>여강 왕부객잔 <span class="zhn">王府客栈</span> <span class="uncertain">(丽江王府饭店으로 추정, 확실하지 않음)</span></td><td>조 호텔 · 중 야크 샤브샤브 · 석 한식</td></tr>
+          <tr><td class="n">11/19 목</td><td>옥룡설산 <span class="zhn">玉龙雪山</span> 빙천공원 · 람월곡 <span class="zhn">蓝月谷</span> · 인상여강쇼 · 리장고성 → 리장→쿤밍 고속열차 약 3시간 30분</td><td>엠파크 그랜드 쿤밍</td><td>조 호텔 · 중 산채비빔밥 · 석 현지식</td></tr>
+          <tr><td class="n">11/20 금</td><td>석림 <span class="zhn">石林</span> (차 2시간) → 구향동굴 <span class="zhn">九乡</span> (차 1시간) → 쿤밍 23:55 출발 (KE162)</td><td>기내</td><td>조 호텔 · 중 이족 오리구이 · 석 송이버섯 샤브샤브</td></tr>
+          <tr><td class="n">11/21 토</td><td>인천 05:05 도착</td><td>—</td><td>—</td></tr>
+        </tbody>
+      </table></div>
+      <p class="small">가이드 김해월(여) · 행사인원 총 25명, 37인승 리무진 버스 · 인솔자 없음 (현지 공항에서 가이드 합류) · 하나투어 스탠다드 · 여행자보험 3억원 포함 · 쇼핑센터 방문 없음 · 빙천 케이블카가 점검 등으로 멈추면 운삼평 케이블카로 대체.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>신청한 선택관광</summary>
+    <div class="in">
+      <div class="tbl"><table>
+        <thead><tr><th>날짜</th><th>선택관광</th><th>1인</th><th>소요</th><th>안 할 때</th></tr></thead>
+        <tbody>
+          <tr><td class="n">11/17</td><td>호도협 미니트레킹 (차마객잔 → 중도객잔 약 4~5km)</td><td class="n">50 USD</td><td class="n">약 2시간</td><td>호도협 전망대 주변 자유시간</td></tr>
+          <tr><td class="n">11/18</td><td>속하고진 마차체험 (운남 커피 한 잔 포함)</td><td class="n">30 USD</td><td class="n">1시간</td><td>속하고진 도보 관광</td></tr>
+          <tr><td class="n">11/18 밤</td><td>전신마사지 (팁 포함)</td><td class="n">40 USD</td><td class="n">약 1시간</td><td>마사지숍 휴식·주변 자유시간</td></tr>
+          <tr><td class="n">11/18 밤</td><td>리장고성 야경투어 — <b>안 함</b></td><td class="n">(30 USD)</td><td class="n">약 2시간</td><td>대신 둘이 고성 산책</td></tr>
+        </tbody>
+      </table></div>
+      <p>트레킹·마차·마사지 3개는 사전 신청·결제 완료 (확정서). 현지에서 낼 선택관광 현금 없음.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>날짜별 날씨·코디</summary>
+    <div class="in">
+      <p>하루 안에 늦가을과 한겨울을 오가는 일정이라 벗고 입기 쉬운 겹쳐 입기가 답. 2~4일차 아침저녁은 영하권, 5일차 쿤밍은 비 소식.</p>
+      <p class="uncertain">예보가 5~9일 뒤 기준이라 11/15(일)에 한 번 더 확인할 것.</p>
+      <div class="tbl"><table>
+        <thead><tr><th>날짜</th><th>지역 · 고도</th><th>예상 날씨</th><th>코디</th></tr></thead>
+        <tbody>
+          <tr><td class="n">11/16 월</td><td>쿤밍 약 1,900m, 밤 도착</td><td>13~19°C, 구름 후 맑음 (예보)</td><td>편한 바지 + 긴팔 + 가디건, 겉옷은 경량패딩</td></tr>
+          <tr><td class="n">11/17 화</td><td>쿤밍 → 리장 → 호도협 → 샹그릴라 약 3,300m</td><td>샹그릴라 낮 10°C 안팎, 밤 -5°C 안팎</td><td>발열내의 + 긴팔티 + 플리스 + 운동화. 호도협은 햇볕 강해 모자·선글라스·선크림. 저녁 고성은 가장 추운 밤 → 롱패딩 + 장갑 + 비니 + 목도리</td></tr>
+          <tr><td class="n">11/18 수</td><td>샹그릴라 → 리장 약 2,400m</td><td>샹그릴라 아침 영하 · 리장 낮 15°C 안팎 (예보 없음, 11월 평년 3~17°C)</td><td>아침 풀무장. 120계단에서 땀나니 지퍼 열기 쉬운 겉옷. 리장에선 니트/플리스. 밤 산책은 경량패딩 + 목도리</td></tr>
+          <tr><td class="n">11/19 목</td><td>빙천공원 4,506m → 람월곡 약 2,800m → 리장고성 → 쿤밍</td><td>정상 영하 + 강풍 <span class="uncertain">(고도 기준 추측)</span> · 쿤밍 밤 11~18°C</td><td>가장 두꺼운 패딩, 장갑, 비니, 넥워머, 선글라스(설원 반사), 선크림 덧바르기. 현장 패딩 대여·산소캔 판매 여부는 가이드 확인</td></tr>
+          <tr><td class="n">11/20 금</td><td>쿤밍 · 석림 · 구향동굴</td><td>10~17°C, 비 소식</td><td>방수 겉옷/우비 + 접이식 우산, 미끄럼 덜한 신발. 귀국용 패딩은 기내 가방에</td></tr>
+        </tbody>
+      </table></div>
+      <p class="small">전 일정 기준 대략: 롱패딩 1, 경량패딩 1, 플리스 1, 니트·긴팔 3~4, 발열내의 3세트, 운동화 1 + 여벌 신발 1 (개인차 있음, 추측).</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>출발 전 체크리스트</summary>
+    <div class="in">
+      <h3>서류·돈</h3>
+      <ul class="check" data-group="docs">
+        <li>여권 2개 — 예약 때 보낸 그 여권 (다르면 출국 불가)</li>
+        <li>중국 온라인 입국신고서 2명 각각 → QR코드 캡처·PDF 저장. 공식 사이트 s.nia.gov.cn만 (무료, 수수료 받는 가짜 사이트 주의)</li>
+        <li>입국신고서는 11/15(일) 저녁~11/16(월) 오전 작성 (입국 3일 전부터 가능, QR 유효 약 72시간이라는 안내가 많음 — 공식 확인 못 함)</li>
+        <li>입력값: 도시/공항 KUNMING, 숙소 YUNNAN → KUNMING → GUANDU DISTRICT, EMPARK HOTEL</li>
+        <li>대한항공 웹체크인 11/14(토) 18:45부터 — 붙어 앉으려면 열리자마자</li>
+        <li>가이드·기사 경비 포함/불포함 확인 → 불포함이면 그 금액 현금</li>
+        <li>위안화 소액 현금 + 알리페이 (카카오페이도 알리페이 결제처에서 사용 가능하다고 여행사 안내)</li>
+      </ul>
+      <p class="small">e티켓은 공항 미팅 때 출력본 제공. 수하물: 위탁 1인 23kg 1개, 기내 1인 10kg 1개. 캐리어 파손 시 짐 찾은 그 자리에서 항공사 확인서 받기 — 자리 뜨면 보험 접수 불가.</p>
+
+      <h3>건강·고산병 (가장 중요)</h3>
+      <ul class="check" data-group="health">
+        <li>지병 있으면 출국 전 주치의 상담 — "하루 만에 1,900m→3,300m, 첫날 밤 3,300m 숙박, 셋째 날 4,500m 케이블카"라고 구체적으로</li>
+        <li>고산병 예방약: 대표 약(아세타졸아마이드)은 처방이 필요한 전문의약품이라 공항 약국 구입은 다른 일반약일 가능성 (확실하지 않음) → 11/14(토)까지 병원 처방이 확실함</li>
+        <li>평소 복용약 여유분(일정+3일) + 약 이름 메모</li>
+        <li>상비약: 소화제, 멀미약, 지사제, 진통해열제, 감기약, 밴드, 인공눈물</li>
+      </ul>
+      <p class="small">11/17 호도협 트레킹은 결제했지만, 당일 숨차거나 두통 있으면 전망대 자유시간으로 빠져도 됨. 그날 밤이 3,300m라 무리 금지.</p>
+
+      <h3>고속열차 금지품목 (하나투어 안내)</h3>
+      <ul class="dots">
+        <li>휴대용 산소통 → 산소캔은 현지에서 사고 11/19 열차 전 다 쓰거나 두고 오기</li>
+        <li>스프레이류 전부 → 크림/스틱형으로</li>
+        <li>보조배터리 100Wh 이상 (일반 1만~2만mAh는 100Wh 미만) — 비행기 위탁 금지, 기내만</li>
+        <li>칼 60mm 이상, 압축가스류</li>
+        <li>향수 1인 1개 100ml 이하, 매니큐어 50ml 이하 1개</li>
+        <li>술 도수 75% 이상 또는 3L 이상</li>
+      </ul>
+
+      <h3>통신·앱</h3>
+      <ul class="check" data-group="apps">
+        <li>데이터: 로밍 또는 VPN 없이 쓰는 해외 eSIM·유심 (중국 와이파이로는 카카오·네이버·유튜브 막힘)</li>
+        <li>알리페이에 해외카드 연결 + 본인인증까지 한국에서</li>
+        <li>앱: 알리페이, 파파고(카메라 번역), 고덕지도(Amap)</li>
+        <li>엄마 휴대폰에 입국 QR, 가이드 번호, 호텔 이름 저장</li>
+      </ul>
+    </div>
+  </details>
+
+  <details>
+    <summary>샹그릴라: 갈 곳·먹을 것</summary>
+    <div class="in">
+      <p>자유 동선은 11/17 저녁 두커종 고성 하나. 3,300m 첫날 밤이라 짧고 따뜻하게. 숙소가 고성 안이라 저녁 먹고 걸어서 나갈 수 있음.</p>
+      <div class="tbl"><table>
+        <thead><tr><th>장소</th><th>언제</th><th>팁</th></tr></thead>
+        <tbody>
+          <tr><td>두커종 고성 · 대불사 대형 마니차 <span class="zhn">转经筒</span></td><td>11/17 저녁 (포함)</td><td>일행과 함께 돌리며 소원 빌기. 언덕 계단이라 쉬엄쉬엄</td></tr>
+          <tr><td>월광광장 <span class="zhn">月光广场</span></td><td>11/17 저녁</td><td>저녁에 현지인 원무(궈좡) 추는 경우 많음</td></tr>
+          <tr><td>송찬림사</td><td>11/18 오전 (포함)</td><td>입구까지 계단 120개, 한 걸음씩</td></tr>
+          <tr><td>납파해 · 장족민가</td><td>11/18 오전 (포함)</td><td>수유차·칭커빵 제공</td></tr>
+        </tbody>
+      </table></div>
+      <div class="tbl"><table>
+        <thead><tr><th>먹을 것</th><th>포함 여부</th><th>팁</th></tr></thead>
+        <tbody>
+          <tr><td>야크 샤브샤브 (마방전골)</td><td>11/18 점심 포함</td><td>따로 야크 훠궈집 갈 필요 없음</td></tr>
+          <tr><td>수유차 · 칭커빵</td><td>11/18 장족민가 포함</td><td>수유차는 짠맛, 한두 모금만</td></tr>
+          <tr><td>야크 요구르트 <span class="zhn">牦牛酸奶</span></td><td>직접</td><td>11/17 저녁 고성 산책 때 디저트로</td></tr>
+          <tr><td>장향저 석판구이</td><td>직접 (선택)</td><td>고성 안 훙훙 석판구이 <span class="zhn">宏宏无烟石板烧烤</span> 평점 높음</td></tr>
+        </tbody>
+      </table></div>
+      <p class="small">칭커주(보리술) 등 술은 첫날 밤 고산이라 피하기.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>리장: 갈 곳·먹을 것</summary>
+    <div class="in">
+      <p>진짜 자유시간은 11/18(수) 마사지 끝난 뒤 밤 하나. 야경투어 대신 둘이 고성을 걸으면 30 USD 아끼고 같은 풍경을 봄.</p>
+      <div class="tbl"><table>
+        <thead><tr><th>장소</th><th>언제</th><th>팁</th></tr></thead>
+        <tbody>
+          <tr><td>흑룡담 · 속하고진 (마차)</td><td>11/18 오후 (포함)</td><td>호숫가 산책로, 마차 1시간 + 운남 커피</td></tr>
+          <tr><td>리장고성 밤 산책</td><td>11/18 마사지 후</td><td>사방가 <span class="zhn">四方街</span>·주점거리는 시끄러움, 오일가 <span class="zhn">五一街</span> 쪽 골목이 조용</td></tr>
+          <tr><td>만고루 <span class="zhn">万古楼</span> (사자산)</td><td>11/18 밤 (선택)</td><td>지붕 야경 명소지만 오르막 — 컨디션 좋을 때만</td></tr>
+          <tr><td>리장고성 · 대수차(물레방아)</td><td>11/19 오후 (포함)</td><td>사진 포인트가 물레방아 앞</td></tr>
+          <tr><td>목부 <span class="zhn">木府</span></td><td>11/19 (시간 되면)</td><td>고성 남쪽 끝, 나시 토사 관청</td></tr>
+        </tbody>
+      </table></div>
+      <p class="small"><span class="uncertain">숙소 왕부객잔은 丽江王府饭店(고성 남문가 依古巷 9호)일 가능성이 높음 — 확실하지 않음.</span> 맞다면 목부까지 도보 약 10분, 만고루 약 1.1km. 고성 돌바닥은 밤에 미끄럽고 해 지면 급격히 추워짐.</p>
+      <div class="tbl"><table>
+        <thead><tr><th>먹을 것</th><th>어떤 맛</th><th>언제</th></tr></thead>
+        <tbody>
+          <tr><td>리장바바 <span class="zhn">丽江粑粑</span></td><td>겹겹이 구운 납작 빵</td><td>11/18 밤 / 11/19 고성 — 열차 간식으로도</td></tr>
+          <tr><td>지더우량펀 <span class="zhn">鸡豆凉粉</span></td><td>고산 콩 묵, 차갑게 또는 구워서</td><td>11/19 고성</td></tr>
+          <tr><td>납배골 훠궈 <span class="zhn">腊排骨火锅</span></td><td>말린 돼지갈비 전골</td><td>11/18 밤 출출하면 2인 작은 냄비. 가격이 한 솥인지 반근(半斤)인지 주문 전 확인</td></tr>
+          <tr><td>수성양화 <span class="zhn">水性杨花</span></td><td>호수 수초 나물</td><td>11/19 저녁 현지식에 나올 수도 (추측)</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+  </details>
+
+  <details>
+    <summary>쿤밍: 갈 곳·먹을 것</summary>
+    <div class="in">
+      <p>쿤밍은 자유시간이 사실상 없음. 11/16 밤 도착, 11/19 밤 열차 도착, 11/20은 종일 석림·구향동굴 후 바로 공항.</p>
+      <div class="tbl"><table>
+        <thead><tr><th>장소·음식</th><th>언제</th><th>팁</th></tr></thead>
+        <tbody>
+          <tr><td>석림 (대석림·소석림·외석림)</td><td>11/20 오전 (포함)</td><td>전동차 이동. 이족 전통복장 분들과 기념사진</td></tr>
+          <tr><td>구향동굴</td><td>11/20 오후 (포함)</td><td>약 3km, 돌아올 땐 리프트. 비 오면 바닥 더 젖음</td></tr>
+          <tr><td>이족 오리구이</td><td>11/20 점심 포함</td><td>석림 근처 식당</td></tr>
+          <tr><td>송이버섯 샤브샤브</td><td>11/20 저녁 포함</td><td>11월 하순엔 냉동·건조일 수 있음 (확실하지 않음)</td></tr>
+          <tr><td>선화빙 <span class="zhn">鲜花饼</span></td><td>직접 · 선물용</td><td>쿤밍 공항이나 열차역 매장</td></tr>
+        </tbody>
+      </table></div>
+      <p class="small">11/20은 짐 정리 시간이 없을 수 있으니 11/19 밤에 귀국 짐(패딩은 기내 가방) 미리 싸두기.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>현지 주의사항</summary>
+    <div class="in">
+      <ul class="dots">
+        <li>11/17이 고비: 열차·차량 이동 약 7시간 반 + 트레킹 + 3,300m 숙박 → 열차에서 최대한 자고 물 자주</li>
+        <li>11/19 빙천공원: 정상에선 천천히, 오래 머물지 않기. 두통·구토·숨 가쁨 심하면 바로 하산 요청</li>
+        <li>물은 생수만, 얼음 든 음료 주의</li>
+        <li>고성 호객·사진 유료 요구가 있을 수 있음 — 정중히 "不要"(필요 없어요)</li>
+        <li>사원·마니차는 시계방향으로, 승려·참배객 촬영 전 양해</li>
+      </ul>
+      <p class="small">출처와 원본 링크는 <a href="https://claude.ai/artifact/VeY54g3D8wn1z57EpuGRbN" target="_blank" rel="noopener">엄마랑 리장·샹그릴라·쿤밍 여행 가이드</a> 문서에 있어요.</p>
+    </div>
+  </details>
+</section>
+
+<footer>하나투어 확정서와 상세일정표 기준 · 날씨는 예보</footer>
+</div>
+</main>
+
+<div class="big" id="big" hidden role="dialog" aria-modal="true" aria-label="중국어 카드 크게 보기">
+  <div>
+    <div class="zh" id="bigZh"></div>
+    <div class="ko" id="bigKo"></div>
+    <button class="btn fill close" id="bigClose" type="button">닫기</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  // 수민 번호를 넣으면 연락처에 나타나요. 예: '+82 10-1234-5678'
+  var SUMIN_PHONE = '';
+
+  var store = {
+    get: function(k){ try { return JSON.parse(localStorage.getItem(k)); } catch(e){ return null; } },
+    set: function(k,v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch(e){} },
+    del: function(k){ try { localStorage.removeItem(k); } catch(e){} }
+  };
+
+  // ---- 체크리스트 ----
+  var KEY = 'yunnan-check-v1';
+  var saved = store.get(KEY) || {};
+  var boxes = [];
+  document.querySelectorAll('ul.check').forEach(function(ul){
+    var g = ul.getAttribute('data-group');
+    Array.prototype.slice.call(ul.children).forEach(function(li, i){
+      var id = 'chk-' + g + '-' + i;
+      var text = li.innerHTML;
+      li.innerHTML = '<label for="' + id + '"><input type="checkbox" id="' + id + '"><span>' + text + '</span></label>';
+      var cb = li.querySelector('input');
+      cb.checked = !!saved[id];
+      cb.addEventListener('change', function(){ saved[id] = cb.checked; store.set(KEY, saved); updateProg(); });
+      if (g === 'hand' || g === 'big') boxes.push(cb);
+    });
+  });
+  var prog = document.getElementById('prog');
+  function updateProg(){
+    var n = boxes.filter(function(b){ return b.checked; }).length;
+    prog.textContent = n + ' / ' + boxes.length + ' 챙김';
+  }
+  updateProg();
+  var ask = document.getElementById('resetAsk'), rbtn = document.getElementById('resetBtn');
+  rbtn.addEventListener('click', function(){ ask.hidden = false; rbtn.hidden = true; });
+  document.getElementById('resetNo').addEventListener('click', function(){ ask.hidden = true; rbtn.hidden = false; });
+  document.getElementById('resetYes').addEventListener('click', function(){
+    saved = {}; store.del(KEY);
+    document.querySelectorAll('ul.check input').forEach(function(c){ c.checked = false; });
+    updateProg(); ask.hidden = true; rbtn.hidden = false;
+  });
+
+  // ---- 연락처: 전화 걸기 + 번호 복사 ----
+  if (SUMIN_PHONE) {
+    var sp = document.getElementById('suminPhone');
+    sp.hidden = false;
+    sp.setAttribute('data-num', SUMIN_PHONE.replace(/[^+\d]/g, ''));
+    sp.querySelector('.num').textContent = SUMIN_PHONE;
+  }
+  document.querySelectorAll('.phone').forEach(function(p){
+    var num = p.getAttribute('data-num'); if (!num) return;
+    var row = p.querySelector('.row');
+    var call = document.createElement('a');
+    call.className = 'btn fill'; call.href = 'tel:' + num; call.textContent = '전화';
+    var copy = document.createElement('button');
+    copy.className = 'btn'; copy.type = 'button'; copy.textContent = '번호 복사';
+    copy.addEventListener('click', function(){
+      var shown = p.querySelector('.num');
+      function selectIt(){ var r = document.createRange(); r.selectNodeContents(shown); var s = getSelection(); s.removeAllRanges(); s.addRange(r); }
+      try {
+        navigator.clipboard.writeText(shown.textContent).then(function(){ copy.textContent = '복사됨'; setTimeout(function(){ copy.textContent = '번호 복사'; }, 1500); }, selectIt);
+      } catch(e){ selectIt(); }
+    });
+    row.appendChild(call); row.appendChild(copy);
+  });
+
+  // ---- 중국어 카드 ----
+  var PH = [
+    ['맵지 않게 해 주세요', '不要辣'],
+    ['따뜻한 물 주세요', '请给我热水'],
+    ['화장실이 어디예요?', '洗手间在哪里？'],
+    ['머리가 아파요. 고산병 같아요.', '我头疼，有高原反应'],
+    ['길을 잃었어요. 전화 좀 도와주세요.', '我迷路了，请帮我打电话'],
+    ['괜찮아요, 필요 없어요', '不要，谢谢'],
+    ['얼마예요?', '多少钱？']
+  ];
+  var wrap = document.getElementById('phrases');
+  var big = document.getElementById('big'), bz = document.getElementById('bigZh'), bk = document.getElementById('bigKo');
+  var lastBtn = null;
+  PH.forEach(function(p){
+    var b = document.createElement('button');
+    b.type = 'button'; b.className = 'phrase';
+    b.innerHTML = '<span class="ko"></span><span class="zh" lang="zh-CN"></span>';
+    b.querySelector('.ko').textContent = p[0];
+    b.querySelector('.zh').textContent = p[1];
+    b.addEventListener('click', function(){
+      lastBtn = b; bz.textContent = p[1]; bk.textContent = p[0]; big.hidden = false;
+      document.getElementById('bigClose').focus();
+    });
+    wrap.appendChild(b);
+  });
+  function closeBig(){ big.hidden = true; if (lastBtn) lastBtn.focus(); }
+  document.getElementById('bigClose').addEventListener('click', closeBig);
+  big.addEventListener('click', function(e){ if (e.target === big) closeBig(); });
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && !big.hidden) closeBig(); });
+
+  // ---- 오늘 표시 ----
+  var DAYS = ['2026-11-16','2026-11-17','2026-11-18','2026-11-19','2026-11-20','2026-11-21'];
+  var NAMES = ['첫째 날','둘째 날','셋째 날','넷째 날','다섯째 날','여섯째 날'];
+  var now = new Date();
+  var pad = function(n){ return (n < 10 ? '0' : '') + n; };
+  var today = now.getFullYear() + '-' + pad(now.getMonth() + 1) + '-' + pad(now.getDate());
+  var box = document.getElementById('todayBox');
+  var idx = DAYS.indexOf(today);
+  if (idx >= 0) {
+    var card = document.getElementById('d' + (idx + 1));
+    card.classList.add('is-today');
+    var b = document.createElement('span'); b.className = 'badge today-b'; b.textContent = '오늘';
+    card.querySelector('header').appendChild(b);
+    box.innerHTML = '오늘은 <b>' + NAMES[idx] + '</b>이에요. <a href="#d' + (idx + 1) + '">오늘 일정 보기 →</a>';
+    box.hidden = false;
+  } else {
+    var start = new Date(2026, 10, 16);
+    var t0 = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    var diff = Math.round((start - t0) / 86400000);
+    if (diff > 0 && diff <= 60) {
+      box.innerHTML = '출발까지 <b>' + diff + '일</b> 남았어요. <a href="#bag">가방 싸기 →</a>';
+      box.hidden = false;
+    }
+  }
+
+  // ---- 탭 표시 ----
+  var links = Array.prototype.slice.call(document.querySelectorAll('#tabs a'));
+  var secs = links.map(function(a){ return document.querySelector(a.getAttribute('href')); });
+  function mark(){
+    var y = window.scrollY + 120, cur = 0;
+    secs.forEach(function(s, i){ if (s && s.offsetTop <= y) cur = i; });
+    links.forEach(function(a, i){ a.classList.toggle('on', i === cur); });
+  }
+  window.addEventListener('scroll', mark, { passive: true });
+  mark();
+})();
+</script>
