@@ -1,0 +1,265 @@
+<title>운남 여행기 템플릿</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@700&family=Noto+Sans+KR:wght@400;600;800&display=swap">
+<style>
+/* Layout: a single column of post cards; each card is the exact text that gets pasted into the blog editor */
+:root{
+  --bg:#EEF3F2; --surface:#FFFFFF; --sunk:#E2EAE9; --line:#CBD8D7;
+  --fg:#15262A; --muted:#55686B; --lake:#0D727A; --lake-soft:#D5ECEC; --saffron:#A85F12;
+  --f-display:"Gowun Batang","Noto Serif KR",serif;
+  --f-body:"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0D1618; --surface:#152225; --sunk:#1B2C30; --line:#2A3F43;
+  --fg:#E5EEEE; --muted:#9DB0B2; --lake:#5CC6CC; --lake-soft:#173A3D; --saffron:#EDA65A; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0D1618; --surface:#152225; --sunk:#1B2C30; --line:#2A3F43;
+  --fg:#E5EEEE; --muted:#9DB0B2; --lake:#5CC6CC; --lake-soft:#173A3D; --saffron:#EDA65A; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:17px;line-height:1.7;word-break:keep-all;overflow-wrap:anywhere}
+.wrap{max-width:680px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 60px;display:grid;gap:28px}
+h1{font-family:var(--f-display);font-size:1.9rem;line-height:1.25;margin:0;text-wrap:balance}
+.intro{display:grid;gap:10px}
+.intro p{margin:0;color:var(--muted)}
+.how{margin:0;padding-left:1.3em;display:grid;gap:4px;color:var(--fg)}
+.jump{display:flex;flex-wrap:wrap;gap:6px}
+.jump a{text-decoration:none;color:var(--fg);background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:4px 12px;font-size:.92rem;font-weight:600}
+.post{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden;scroll-margin-top:16px}
+.post .bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--lake-soft)}
+.post .bar b{color:var(--lake)}
+.btns{display:flex;gap:6px;flex-wrap:wrap}
+.btn{font:inherit;font-size:.9rem;font-weight:600;border:1px solid var(--lake);color:var(--lake);background:var(--surface);border-radius:999px;padding:4px 14px;cursor:pointer}
+.btn.fill{background:var(--lake);color:var(--surface)}
+.btn:focus-visible{outline:3px solid var(--saffron);outline-offset:2px}
+.tl{padding:12px 16px;border-bottom:1px solid var(--line);display:grid;gap:4px}
+.tl small{color:var(--muted);font-weight:600}
+.tl .t{font-weight:800;user-select:all}
+.body{padding:16px;display:grid;gap:0}
+.body h3{font-size:1.05rem;margin:18px 0 4px;color:var(--lake)}
+.body h3:first-child{margin-top:0}
+.body p{margin:0 0 4px}
+.body ul{margin:0 0 4px;padding-left:1.2em}
+.body .ph{color:var(--saffron);font-weight:600}
+.body .blank{color:var(--muted)}
+.body .tags{color:var(--lake);margin-top:14px}
+.status{font-size:.85rem;color:var(--muted)}
+footer{color:var(--muted);font-size:.9rem}
+</style>
+
+<div class="wrap">
+  <div class="intro">
+    <h1>운남 여행기 템플릿</h1>
+    <p>엄마랑 운남성 여행(11/16~11/21)을 날짜별 블로그 글로 남기기 위한 틀이에요. 일정·식사·숙소는 미리 채워 두었고, 회색 글씨 자리에 그날 느낌을 쓰면 돼요.</p>
+    <ol class="how">
+      <li>글마다 <b>제목 복사</b> → 블로그 글쓰기 제목 칸에 붙여넣기</li>
+      <li><b>본문 복사</b> → 본문 칸에 붙여넣기</li>
+      <li>임시저장. PC 스마트에디터에서는 저장해 둔 글을 <b>내 템플릿</b>으로 등록해 둘 수도 있어요.</li>
+      <li>여행 중에는 주황색 사진 자리에 사진을 넣고, 회색 글씨를 지우고 쓰기</li>
+    </ol>
+    <nav class="jump" id="jump" aria-label="글 바로가기"></nav>
+  </div>
+  <div id="posts" style="display:grid;gap:22px"></div>
+  <footer>일정·식사·숙소는 하나투어 확정서와 상세일정표 기준이에요. 여행 안내 페이지와 같은 내용이에요.</footer>
+</div>
+
+<script>
+(function(){
+  var TAGS = '#운남성여행 #엄마랑여행 #모녀여행 #쿤밍 #리장 #샹그릴라 #하나투어 #중국여행';
+  // blocks: ['h', text] heading · ['p', text] · ['ph', text] photo slot · ['blank', text] prompt · ['ul', [items]]
+  var POSTS = [
+    { id:'p0', label:'프롤로그', title:'[운남 여행 0] 엄마랑 운남성 5박 6일, 떠나기 전',
+      blocks:[
+        ['blank','(왜 운남성이었는지, 엄마랑 여행을 가게 된 이야기)'],
+        ['h','여행 한눈에'],
+        ['ul',['기간: 2026년 11월 16일(월) ~ 11월 21일(토), 5박 6일','동선: 쿤밍 → 샹그릴라 → 리장 → 쿤밍','이동: 인천–쿤밍 대한항공 직항, 도시 사이는 고속열차와 버스','상품: 하나투어 패키지, 일행 25명']],
+        ['h','날짜별 일정'],
+        ['ul',['1일차 11/16 · 인천 → 쿤밍 밤 도착','2일차 11/17 · 고속열차로 리장, 호도협 트레킹, 샹그릴라 두커종 고성','3일차 11/18 · 송찬림사, 납파해 → 리장 흑룡담, 속하고진','4일차 11/19 · 옥룡설산 빙천공원, 람월곡, 인상여강쇼, 리장고성 → 쿤밍','5일차 11/20 · 석림, 구향동굴 → 밤 비행기','6일차 11/21 · 새벽 인천 도착']],
+        ['h','짐 싸면서'],
+        ['p','하루 안에 늦가을과 한겨울을 오가는 일정이라 얇은 옷 여러 겹이 핵심. 샹그릴라 밤은 영하 5도, 옥룡설산은 4,506m.'],
+        ['ph','[사진: 싼 짐 / 공항]'],
+        ['blank','(준비하면서 걱정됐던 것, 기대되는 것)']
+      ]},
+    { id:'p1', label:'1일차', title:'[운남 여행 1] 11/16 인천에서 쿤밍으로',
+      blocks:[
+        ['h','오늘의 동선'],
+        ['ul',['16:15 인천공항 제2터미널 하나투어 미팅','18:45 인천 출발 (KE161)','22:45 쿤밍 도착 (중국 시간, 한국보다 1시간 느림)','가이드 만나서 호텔로']],
+        ['ph','[사진: 출국 전 공항에서 엄마랑]'],
+        ['blank','(공항에서, 비행기 안에서 있었던 일)'],
+        ['h','쿤밍 첫인상'],
+        ['ph','[사진: 쿤밍 공항 / 밤 풍경]'],
+        ['blank','(밤 공기, 입국 심사, 첫 느낌)'],
+        ['h','숙소'],
+        ['p','엠파크 그랜드 쿤밍 (昆明世纪金源大饭店), 관도구'],
+        ['blank','(방 상태, 한 줄 평)'],
+        ['h','엄마 한마디'],
+        ['blank','"(엄마가 한 말)"']
+      ]},
+    { id:'p2', label:'2일차', title:'[운남 여행 2] 11/17 호도협 건너 샹그릴라까지',
+      blocks:[
+        ['h','오늘의 동선'],
+        ['ul',['쿤밍 → 리장 고속열차 (약 3시간 30분)','호도협 이동 (차 2시간), 미니트레킹 약 2시간 (차마객잔 → 중도객잔)','샹그릴라 이동 (차 2시간)','저녁 두커종 고성, 대불사 마니차']],
+        ['h','고속열차'],
+        ['ph','[사진: 열차 / 창밖]'],
+        ['blank','(열차 안 풍경, 엄마 컨디션)'],
+        ['h','호도협'],
+        ['ph','[사진: 협곡]'],
+        ['blank','(트레킹 길, 협곡을 처음 본 순간)'],
+        ['h','샹그릴라 두커종 고성의 밤'],
+        ['ph','[사진: 마니차 / 고성 야경]'],
+        ['blank','(해발 3,300m에서 첫날 밤, 고산병 느낌, 마니차 돌리며 빈 소원)'],
+        ['h','먹은 것'],
+        ['ul',['점심·저녁: 현지식','야크 요구르트']],
+        ['blank','(맛 평가)'],
+        ['h','날씨와 옷차림'],
+        ['blank','(실제 기온, 입은 옷이 충분했는지)'],
+        ['h','숙소'],
+        ['p','그레이스 객잔 (두커종 고성점)'],
+        ['blank','(한 줄 평)'],
+        ['h','엄마 한마디'],
+        ['blank','"(엄마가 한 말)"']
+      ]},
+    { id:'p3', label:'3일차', title:'[운남 여행 3] 11/18 송찬림사에서 리장 속하고진까지',
+      blocks:[
+        ['h','오늘의 동선'],
+        ['ul',['송찬림사 (입구 계단 120개)','납파해, 장족민가에서 수유차와 칭커빵','점심 야크 샤브샤브','리장 이동 (차 2시간)','흑룡담, 속하고진 마차 체험 (운남 커피 포함)','저녁 한식, 전신 마사지','리장고성 밤 산책']],
+        ['h','송찬림사'],
+        ['ph','[사진: 송찬림사]'],
+        ['blank','(계단 오르며, 절 안 분위기)'],
+        ['h','납파해와 장족민가'],
+        ['ph','[사진: 호수 / 수유차]'],
+        ['blank','(티베트 가정집, 수유차 맛)'],
+        ['h','흑룡담과 속하고진'],
+        ['ph','[사진: 설산이 비친 흑룡담 / 마차]'],
+        ['blank','(마차 타고 본 옛 마을, 운남 커피)'],
+        ['h','리장고성의 밤'],
+        ['ph','[사진: 고성 야경]'],
+        ['blank','(마사지 후 엄마랑 둘이 걸은 골목)'],
+        ['h','먹은 것'],
+        ['ul',['점심: 야크 샤브샤브','저녁: 한식','간식: 리장바바']],
+        ['blank','(맛 평가)'],
+        ['h','숙소'],
+        ['p','여강 왕부객잔'],
+        ['blank','(한 줄 평)'],
+        ['h','엄마 한마디'],
+        ['blank','"(엄마가 한 말)"']
+      ]},
+    { id:'p4', label:'4일차', title:'[운남 여행 4] 11/19 옥룡설산 4,506m, 그리고 리장고성',
+      blocks:[
+        ['h','오늘의 동선'],
+        ['ul',['옥룡설산 빙천공원 케이블카 (해발 4,506m)','람월곡','점심 산채비빔밥','인상여강쇼','리장고성, 대수차(물레방아)','저녁 후 고속열차로 쿤밍 (약 3시간 30분)']],
+        ['h','옥룡설산'],
+        ['ph','[사진: 설산 정상]'],
+        ['blank','(케이블카, 정상의 바람과 추위, 엄마 컨디션)'],
+        ['h','람월곡'],
+        ['ph','[사진: 옥빛 호수]'],
+        ['blank','(물빛)'],
+        ['h','인상여강쇼'],
+        ['ph','[사진: 공연]'],
+        ['blank','(설산 앞 야외 공연 감상)'],
+        ['h','리장고성'],
+        ['ph','[사진: 물레방아 앞 엄마]'],
+        ['blank','(낮의 고성, 지더우량펀 맛)'],
+        ['h','먹은 것'],
+        ['ul',['점심: 산채비빔밥','저녁: 현지식','간식: 지더우량펀(리장 묵)']],
+        ['blank','(맛 평가)'],
+        ['h','숙소'],
+        ['p','엠파크 그랜드 쿤밍'],
+        ['h','엄마 한마디'],
+        ['blank','"(엄마가 한 말)"']
+      ]},
+    { id:'p5', label:'5·6일차', title:'[운남 여행 5] 11/20 석림과 구향동굴, 집으로',
+      blocks:[
+        ['h','오늘의 동선'],
+        ['ul',['석림 (대석림·소석림, 전동차)','점심 이족 오리구이','구향동굴 (약 3km, 나올 땐 리프트)','저녁 송이버섯 샤브샤브','23:55 쿤밍 출발 (KE162) → 11/21 05:05 인천 도착']],
+        ['h','석림'],
+        ['ph','[사진: 돌숲]'],
+        ['blank','(돌숲 풍경, 날씨)'],
+        ['h','구향동굴'],
+        ['ph','[사진: 동굴 안]'],
+        ['blank','(동굴 길, 리프트)'],
+        ['h','먹은 것'],
+        ['ul',['점심: 이족 오리구이','저녁: 송이버섯 샤브샤브','선물: 선화빙(장미 과자)']],
+        ['blank','(맛 평가)'],
+        ['h','새벽 인천'],
+        ['ph','[사진: 귀국]'],
+        ['blank','(돌아오는 비행기, 새벽 공항)'],
+        ['h','5박 6일을 돌아보며'],
+        ['blank','(가장 좋았던 순간, 다시 간다면 바꿀 것, 엄마랑 여행하며 느낀 것)'],
+        ['h','엄마 한마디'],
+        ['blank','"(엄마가 한 말)"']
+      ]}
+  ];
+
+  function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function toHTML(p, forClip){
+    var o = [];
+    p.blocks.forEach(function(b){
+      var t = b[0], v = b[1];
+      if (t === 'h') o.push(forClip ? '<p><b>■ ' + esc(v) + '</b></p>' : '<h3>■ ' + esc(v) + '</h3>');
+      else if (t === 'ul') o.push('<ul>' + v.map(function(x){ return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>');
+      else if (t === 'ph') o.push('<p' + (forClip ? '' : ' class="ph"') + '>' + esc(v) + '</p>');
+      else if (t === 'blank') o.push('<p' + (forClip ? ' style="color:#888888"' : ' class="blank"') + '>' + esc(v) + '</p>');
+      else o.push('<p>' + esc(v) + '</p>');
+      if (forClip) o.push('<p><br></p>');
+    });
+    o.push('<p' + (forClip ? '' : ' class="tags"') + '>' + esc(TAGS) + '</p>');
+    return o.join('');
+  }
+  function toText(p){
+    var o = [];
+    p.blocks.forEach(function(b){
+      var t = b[0], v = b[1];
+      if (t === 'h') o.push('■ ' + v);
+      else if (t === 'ul') o.push(v.map(function(x){ return '· ' + x; }).join('\n'));
+      else o.push(v);
+      o.push('');
+    });
+    o.push(TAGS);
+    return o.join('\n');
+  }
+
+  var jump = document.getElementById('jump'), wrap = document.getElementById('posts');
+  POSTS.forEach(function(p){
+    var a = document.createElement('a'); a.href = '#' + p.id; a.textContent = p.label; jump.appendChild(a);
+    var art = document.createElement('article'); art.className = 'post'; art.id = p.id;
+    art.innerHTML =
+      '<div class="bar"><b>' + esc(p.label) + '</b><div class="btns">' +
+      '<button class="btn" type="button" data-k="title">제목 복사</button>' +
+      '<button class="btn fill" type="button" data-k="body">본문 복사</button></div></div>' +
+      '<div class="tl"><small>제목</small><span class="t">' + esc(p.title) + '</span></div>' +
+      '<div class="body">' + toHTML(p, false) + '</div>' +
+      '<div class="tl"><span class="status" aria-live="polite"></span></div>';
+    var status = art.querySelector('.status');
+    function done(msg){ status.textContent = msg; setTimeout(function(){ status.textContent = ''; }, 3000); }
+    function selectEl(el, msg){
+      var r = document.createRange(); r.selectNodeContents(el);
+      var s = getSelection(); s.removeAllRanges(); s.addRange(r);
+      done(msg);
+    }
+    art.querySelector('[data-k="title"]').addEventListener('click', function(){
+      var el = art.querySelector('.t');
+      try { navigator.clipboard.writeText(p.title).then(function(){ done('제목을 복사했어요.'); }, function(){ selectEl(el, '복사가 막혀서 제목을 선택해 두었어요. 길게 눌러 복사하세요.'); }); }
+      catch(e){ selectEl(el, '복사가 막혀서 제목을 선택해 두었어요. 길게 눌러 복사하세요.'); }
+    });
+    art.querySelector('[data-k="body"]').addEventListener('click', function(){
+      var el = art.querySelector('.body');
+      var html = toHTML(p, true), text = toText(p);
+      var fallback = function(){ selectEl(el, '복사가 막혀서 본문을 선택해 두었어요. 길게 눌러 복사하세요.'); };
+      try {
+        if (window.ClipboardItem && navigator.clipboard.write) {
+          navigator.clipboard.write([new ClipboardItem({
+            'text/html': new Blob([html], {type:'text/html'}),
+            'text/plain': new Blob([text], {type:'text/plain'})
+          })]).then(function(){ done('본문을 복사했어요. 블로그 본문 칸에 붙여넣으세요.'); }, function(){
+            navigator.clipboard.writeText(text).then(function(){ done('본문을 글자만 복사했어요.'); }, fallback);
+          });
+        } else {
+          navigator.clipboard.writeText(text).then(function(){ done('본문을 글자만 복사했어요.'); }, fallback);
+        }
+      } catch(e){ fallback(); }
+    });
+    wrap.appendChild(art);
+  });
+})();
+</script>
